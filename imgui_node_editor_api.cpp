@@ -9,6 +9,7 @@
 // CREDITS
 //   Written by Michal Cichon
 //------------------------------------------------------------------------------
+#include "AGEpch.h"
 # include "imgui_node_editor_internal.h"
 # include <algorithm>
 

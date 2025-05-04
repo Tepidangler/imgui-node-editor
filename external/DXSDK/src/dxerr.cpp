@@ -13,9 +13,9 @@
 //#include "dxut.h"
 
 // This version only supports UNICODE.
-
+# include "AGEpch.h"
 struct IUnknown;
-#include "dxerr.h"
+#include "external/DXSDK/include/dxerr.h"
 
 #include <stdio.h>
 

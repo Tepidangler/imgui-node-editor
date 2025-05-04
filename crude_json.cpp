@@ -9,6 +9,7 @@
 //
 // CREDITS
 //   Written by Michal Cichon
+#include "AGEpch.h"
 # include "crude_json.h"
 # include <iomanip>
 # include <limits>
