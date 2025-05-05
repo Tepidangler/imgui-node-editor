@@ -1145,7 +1145,6 @@ void ed::EditorContext::Begin(const char* id, const ImVec2& size)
         LoadSettings();
         m_IsInitialized = true;
     }
-
     //ImGui::LogToClipboard();
     //Log("---- begin ----");
 

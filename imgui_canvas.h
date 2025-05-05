@@ -249,6 +249,7 @@ private:
 
     float m_LastFringeScale = 1.0f;
 
+    const char* m_WindowNameBackup;
     ImVec2 m_MousePosBackup;
     ImVec2 m_MousePosPrevBackup;
     ImVec2 m_MouseClickedPosBackup[IM_ARRAYSIZE(ImGuiIO::MouseClickedPos)];

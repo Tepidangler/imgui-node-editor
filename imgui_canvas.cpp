@@ -95,6 +95,9 @@ static inline ImVec2 ImSelectPositive(const ImVec2& lhs, const ImVec2& rhs) { re
 
 bool ImGuiEx::Canvas::Begin(const char* id, const ImVec2& size)
 {
+   // ImGuiWindow* Window = ImGui::GetCurrentWindow();
+   // Window->Name = const_cast<char*>(id);
+    m_WindowNameBackup = id;
     return Begin(ImGui::GetID(id), size);
 }
 
