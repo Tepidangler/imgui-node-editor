@@ -91,7 +91,7 @@ struct Config
 {
     using CanvasSizeModeAlias = ax::NodeEditor::CanvasSizeMode;
 
-    const char*             SettingsFile;
+    std::string             SettingsFile;
     ConfigSession           BeginSaveSession;
     ConfigSession           EndSaveSession;
     ConfigSaveSettings      SaveSettings;
