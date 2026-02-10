@@ -18,7 +18,7 @@ set(INE_INC_DIRS
         ${INE_EXT}
 CACHE PATH "imgui-node-editor include dirs")
 
-add_library(
+add_library(imgui-node-editor STATIC
         crude_json.cpp
         crude_json.h
         imgui_bezier_math.h
@@ -41,4 +41,5 @@ add_library(
 )
 
 set_property(TARGET imgui-node-editor PROPERTY
+
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
