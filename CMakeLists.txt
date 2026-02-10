@@ -1,14 +1,6 @@
 cmake_minimum_required(VERSION 4.1)
 set(CMAKE_CXX_STANDARD 20)
 
-project(imgui-node-editor)
-
-include_directories(BEFORE
-        ${CMAKE_SOURCE_DIR}
-        utilities/
-        external/
-)
-
 set(INE_MAIN ${CMAKE_SOURCE_DIR})
 set(INE_UTILS ${CMAKE_SOURCE_DIR}/utilities)
 set(INE_EXT ${CMAKE_SOURCE_DIR}/external)
@@ -17,6 +9,16 @@ set(INE_INC_DIRS
         ${INE_UTILS}
         ${INE_EXT}
 CACHE PATH "imgui-node-editor include dirs")
+
+project(imgui-node-editor)
+
+include_directories(BEFORE
+        ${CMAKE_SOURCE_DIR}
+        utilities/
+        external/
+)
+
+
 
 add_library(imgui-node-editor STATIC
         crude_json.cpp
@@ -43,3 +45,4 @@ add_library(imgui-node-editor STATIC
 set_property(TARGET imgui-node-editor PROPERTY
 
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
