@@ -18,6 +18,7 @@
 # include <imgui.h>
 # include <cstdint> // std::uintXX_t
 # include <utility> // std::move
+#include <string>
 
 
 //------------------------------------------------------------------------------
