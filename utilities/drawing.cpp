@@ -1,5 +1,4 @@
 # define IMGUI_DEFINE_MATH_OPERATORS
-# include "AGEpch.h"
 # include "drawing.h"
 # include <imgui_internal.h>
 
