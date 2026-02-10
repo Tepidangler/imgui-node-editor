@@ -1,4 +1,3 @@
-#include "AGEpch.h"
 #pragma warning(push,0)
 # ifndef IMGUI_DEFINE_MATH_OPERATORS
 #     define IMGUI_DEFINE_MATH_OPERATORS
