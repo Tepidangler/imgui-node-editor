@@ -13,7 +13,7 @@ CACHE PATH "imgui-node-editor include dirs")
 project(imgui-node-editor)
 
 include_directories(BEFORE
-        /
+        ${INE_MAIN}/
         utilities/
         external/
         ${ImGUI_SOURCE_DIR}
@@ -46,6 +46,7 @@ add_library(imgui-node-editor STATIC
 set_property(TARGET imgui-node-editor PROPERTY
 
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 
 
 
