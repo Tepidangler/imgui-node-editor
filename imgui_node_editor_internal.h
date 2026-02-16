@@ -134,7 +134,7 @@ private:
 //------------------------------------------------------------------------------
 enum class ObjectType
 {
-    None,
+    NoType,
     Node,
     Link,
     Pin
@@ -154,7 +154,7 @@ struct ObjectId final: Details::SafePointerType<ObjectId>
     using Super = Details::SafePointerType<ObjectId>;
     using Super::Super;
 
-    ObjectId():                  Super(Invalid),              m_Type(ObjectType::None)   {}
+    ObjectId():                  Super(Invalid),              m_Type(ObjectType::NoType)   {}
     ObjectId(PinId  pinId):      Super(pinId.AsPointer()),    m_Type(ObjectType::Pin)    {}
     ObjectId(NodeId nodeId):     Super(nodeId.AsPointer()),   m_Type(ObjectType::Node)   {}
     ObjectId(LinkId linkId):     Super(linkId.AsPointer()),   m_Type(ObjectType::Link)   {}
@@ -205,7 +205,7 @@ struct Object
 {
     enum DrawFlags
     {
-        None     = 0,
+        NoFlags     = 0,
         Hovered  = 1,
         Selected = 2,
         Highlighted = 4,
@@ -246,7 +246,7 @@ struct Object
 
     virtual void Reset() { m_IsLive = false; }
 
-    virtual void Draw(ImDrawList* drawList, DrawFlags flags = None) = 0;
+    virtual void Draw(ImDrawList* drawList, DrawFlags flags = NoFlags) = 0;
 
     virtual bool AcceptDrag() { return false; }
     virtual void UpdateDrag(const ImVec2& offset) { IM_UNUSED(offset); }
@@ -342,7 +342,7 @@ struct Pin final: Object
         Object::Reset();
     }
 
-    virtual void Draw(ImDrawList* drawList, DrawFlags flags = None) override final;
+    virtual void Draw(ImDrawList* drawList, DrawFlags flags = NoFlags) override final;
 
     ImVec2 GetClosestPoint(const ImVec2& p) const;
     ImLine GetClosestLine(const Pin* pin) const;
@@ -360,7 +360,7 @@ enum class NodeType
 
 enum class NodeRegion : uint8_t
 {
-    None        = 0x00,
+    NoRegion        = 0x00,
     Top         = 0x01,
     Bottom      = 0x02,
     Left        = 0x04,
@@ -434,7 +434,7 @@ struct Node final: Object
 
     virtual bool IsSelectable() override { return true; }
 
-    virtual void Draw(ImDrawList* drawList, DrawFlags flags = None) override final;
+    virtual void Draw(ImDrawList* drawList, DrawFlags flags = NoFlags) override final;
     void DrawBorder(ImDrawList* drawList, ImU32 color, float thickness = 1.0f, float offset = 0.0f);
 
     void GetGroupedNodes(std::vector<Node*>& result, bool append = false);
@@ -476,7 +476,7 @@ struct Link final: Object
 
     virtual bool IsSelectable() override { return true; }
 
-    virtual void Draw(ImDrawList* drawList, DrawFlags flags = None) override final;
+    virtual void Draw(ImDrawList* drawList, DrawFlags flags = NoFlags) override final;
     void Draw(ImDrawList* drawList, ImU32 color, float extraThickness = 0.0f) const;
 
     void UpdateEndpoints();
@@ -511,7 +511,7 @@ struct NodeSettings
         , m_WasUsed(false)
         , m_Saved(false)
         , m_IsDirty(false)
-        , m_DirtyReason(SaveReasonFlags::None)
+        , m_DirtyReason(SaveReasonFlags::NoReason)
     {
     }
 
@@ -537,7 +537,7 @@ struct Settings
 
     Settings()
         : m_IsDirty(false)
-        , m_DirtyReason(SaveReasonFlags::None)
+        , m_DirtyReason(SaveReasonFlags::NoReason)
         , m_ViewScroll(0, 0)
         , m_ViewZoom(1.0f)
         , m_VisibleRect()
@@ -777,7 +777,7 @@ private:
 
 struct EditorAction
 {
-    enum AcceptResult { False, True, Possible };
+    enum AcceptResult { Result_False, Result_True, Possible };
 
     EditorAction(EditorContext* editor)
         : Editor(editor)
@@ -814,7 +814,7 @@ struct NavigateAction final: EditorAction
 {
     enum class ZoomMode
     {
-        None,
+        NoZoom,
         Exact,
         WithMargin
     };
@@ -986,7 +986,7 @@ struct SelectAction final: EditorAction
 
 struct ContextMenuAction final: EditorAction
 {
-    enum Menu { None, Node, Pin, Link, Background };
+    enum Menu { NoMenu, Node, Pin, Link, Background };
 
     Menu m_CandidateMenu;
     Menu m_CurrentMenu;
@@ -1012,7 +1012,7 @@ struct ContextMenuAction final: EditorAction
 
 struct ShortcutAction final: EditorAction
 {
-    enum Action { None, Cut, Copy, Paste, Duplicate, CreateNode };
+    enum Action { NoAction, Cut, Copy, Paste, Duplicate, CreateNode };
 
     bool            m_IsActive;
     bool            m_InAction;
@@ -1045,7 +1045,7 @@ struct CreateItemAction final : EditorAction
 {
     enum Stage
     {
-        None,
+        NoStage,
         Possible,
         Create
     };
@@ -1066,8 +1066,8 @@ struct CreateItemAction final : EditorAction
 
     enum Result
     {
-        True,
-        False,
+        Result_True,
+        Result_False,
         Indeterminate
     };
 
@@ -1281,7 +1281,7 @@ struct Config: ax::NodeEditor::Config
 
 enum class SuspendFlags : uint8_t
 {
-    None = 0,
+    NoSuspend = 0,
     KeepSplitter = 1
 };
 
@@ -1362,8 +1362,8 @@ struct EditorContext
 
     void NotifyLinkDeleted(Link* link);
 
-    void Suspend(SuspendFlags flags = SuspendFlags::None);
-    void Resume(SuspendFlags flags = SuspendFlags::None);
+    void Suspend(SuspendFlags flags = SuspendFlags::NoSuspend);
+    void Resume(SuspendFlags flags = SuspendFlags::NoSuspend);
     bool IsSuspended();
 
     bool IsFocused();
@@ -1433,7 +1433,7 @@ struct EditorContext
 
     void NavigateTo(const ImRect& bounds, bool zoomIn = false, float duration = -1)
     {
-        auto zoomMode = zoomIn ? NavigateAction::ZoomMode::WithMargin : NavigateAction::ZoomMode::None;
+        auto zoomMode = zoomIn ? NavigateAction::ZoomMode::WithMargin : NavigateAction::ZoomMode::NoZoom;
         m_NavigateAction.NavigateTo(bounds, zoomMode, duration);
     }
 
