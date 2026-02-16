@@ -67,7 +67,7 @@ enum class CanvasSizeMode
 //------------------------------------------------------------------------------
 enum class SaveReasonFlags: uint32_t
 {
-    None       = 0x00000000,
+    NoReason       = 0x00000000,
     Navigation = 0x00000001,
     Position   = 0x00000002,
     Size       = 0x00000004,
