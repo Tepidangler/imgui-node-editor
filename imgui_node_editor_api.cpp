@@ -261,7 +261,7 @@ bool ax::NodeEditor::QueryNewLink(PinId* startId, PinId* endId)
 
     auto& context = s_Editor->GetItemCreator();
 
-    return context.QueryLink(startId, endId) == Result::True;
+    return context.QueryLink(startId, endId) == Result::Result_True;
 }
 
 bool ax::NodeEditor::QueryNewLink(PinId* startId, PinId* endId, const ImVec4& color, float thickness)
@@ -274,7 +274,7 @@ bool ax::NodeEditor::QueryNewLink(PinId* startId, PinId* endId, const ImVec4& co
     if (result != Result::Indeterminate)
         context.SetStyle(ImColor(color), thickness);
 
-    return result == Result::True;
+    return result == Result::Result_True;
 }
 
 bool ax::NodeEditor::QueryNewNode(PinId* pinId)
@@ -283,7 +283,7 @@ bool ax::NodeEditor::QueryNewNode(PinId* pinId)
 
     auto& context = s_Editor->GetItemCreator();
 
-    return context.QueryNode(pinId) == Result::True;
+    return context.QueryNode(pinId) == Result::Result_True;
 }
 
 bool ax::NodeEditor::QueryNewNode(PinId* pinId, const ImVec4& color, float thickness)
@@ -305,7 +305,7 @@ bool ax::NodeEditor::AcceptNewItem()
 
     auto& context = s_Editor->GetItemCreator();
 
-    return context.AcceptItem() == Result::True;
+    return context.AcceptItem() == Result::Result_True;
 }
 
 bool ax::NodeEditor::AcceptNewItem(const ImVec4& color, float thickness)
@@ -318,7 +318,7 @@ bool ax::NodeEditor::AcceptNewItem(const ImVec4& color, float thickness)
     if (result != Result::Indeterminate)
         context.SetStyle(ImColor(color), thickness);
 
-    return result == Result::True;
+    return result == Result::Result_True;
 }
 
 void ax::NodeEditor::RejectNewItem()
