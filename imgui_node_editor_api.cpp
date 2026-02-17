@@ -296,7 +296,7 @@ bool ax::NodeEditor::QueryNewNode(PinId* pinId, const ImVec4& color, float thick
     if (result != Result::Indeterminate)
         context.SetStyle(ImColor(color), thickness);
 
-    return result == Result::True;
+    return result == Result::Result_True;
 }
 
 bool ax::NodeEditor::AcceptNewItem()
