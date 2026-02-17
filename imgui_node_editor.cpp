@@ -4882,7 +4882,7 @@ ed::CreateItemAction::Result ed::CreateItemAction::QueryNode(PinId* pinId)
 {
     IM_ASSERT(m_InActive);
 
-    if (!m_InActive || m_CurrentStage == None || m_ItemType != Node)
+    if (!m_InActive || m_CurrentStage == NoStage || m_ItemType != Node)
         return Indeterminate;
 
     *pinId = m_LinkStart ? m_LinkStart->m_ID : 0;
