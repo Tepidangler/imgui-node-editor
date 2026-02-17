@@ -644,7 +644,7 @@ bool ed::Node::EndDrag()
 
 void ed::Node::Draw(ImDrawList* drawList, DrawFlags flags)
 {
-    if (flags == Detail::Object::None)
+    if (flags == Detail::Object::NoFlags)
     {
         drawList->ChannelsSetCurrent(m_Channel + c_NodeBackgroundChannel);
 
@@ -839,7 +839,7 @@ ed::NodeRegion ed::Node::GetRegion(const ImVec2& point) const
         if (m_Bounds.Contains(point))
             return NodeRegion::Header;
         else
-            return NodeRegion::None;
+            return NodeRegion::NoRegion;
     }
     else if (m_Type == NodeType::Group)
     {
@@ -866,7 +866,7 @@ ed::NodeRegion ed::Node::GetRegion(const ImVec2& point) const
         }
     }
 
-    return NodeRegion::None;
+    return NodeRegion::NoRegion;
 }
 
 
@@ -879,7 +879,7 @@ ed::NodeRegion ed::Node::GetRegion(const ImVec2& point) const
 //------------------------------------------------------------------------------
 void ed::Link::Draw(ImDrawList* drawList, DrawFlags flags)
 {
-    if (flags == None)
+    if (flags == NoFlags)
     {
         drawList->ChannelsSetCurrent(c_LinkChannel_Links);
 
@@ -1346,7 +1346,7 @@ void ed::EditorContext::End()
         {
             auto result = action.Accept(control);
 
-            if (result == EditorAction::True)
+            if (result == EditorAction::Result_True)
                 return true;
             else if (/*!possibleAction &&*/ result == EditorAction::Possible)
                 possibleAction = &action;
@@ -1409,7 +1409,7 @@ void ed::EditorContext::End()
     }
 
     // Sort nodes if bounds of node changed
-    if (sortGroups || ((m_Settings.m_DirtyReason & (SaveReasonFlags::Position | SaveReasonFlags::Size)) != SaveReasonFlags::None))
+    if (sortGroups || ((m_Settings.m_DirtyReason & (SaveReasonFlags::Position | SaveReasonFlags::Size)) != SaveReasonFlags::NoReason))
     {
         // Bring all groups before regular nodes
         auto groupsItEnd = std::stable_partition(m_Nodes.begin(), m_Nodes.end(), IsGroup);
@@ -2663,7 +2663,7 @@ void ed::EditorContext::ShowMetrics(const Control& control)
 void ed::NodeSettings::ClearDirty()
 {
     m_IsDirty     = false;
-    m_DirtyReason = SaveReasonFlags::None;
+    m_DirtyReason = SaveReasonFlags::NoReason;
 }
 
 void ed::NodeSettings::MakeDirty(SaveReasonFlags reason)
@@ -2772,7 +2772,7 @@ void ed::Settings::ClearDirty(Node* node)
     else
     {
         m_IsDirty     = false;
-        m_DirtyReason = SaveReasonFlags::None;
+        m_DirtyReason = SaveReasonFlags::NoReason;
 
         for (auto& knownNode : m_Nodes)
             knownNode.ClearDirty();
@@ -2803,7 +2803,7 @@ std::string ed::Settings::Serialize()
         switch (id.Type())
         {
             default:
-            case NodeEditor::Detail::ObjectType::None: return value;
+            case NodeEditor::Detail::ObjectType::NoType: return value;
             case NodeEditor::Detail::ObjectType::Node: return "node:" + value;
             case NodeEditor::Detail::ObjectType::Link: return "link:" + value;
             case NodeEditor::Detail::ObjectType::Pin:  return "pin:"  + value;
@@ -3320,7 +3320,7 @@ ed::EditorAction::AcceptResult ed::NavigateAction::Accept(const Control& control
     IM_ASSERT(!m_IsActive);
 
     if (m_IsActive)
-        return False;
+        return Result_False;
 
     if (Editor->CanAcceptUserInput() /*&& !ImGui::IsAnyItemActive()*/ && ImGui::IsMouseDragging(Editor->GetConfig().NavigateButtonIndex, 0.0f))
     {
@@ -3334,7 +3334,7 @@ ed::EditorAction::AcceptResult ed::NavigateAction::Accept(const Control& control
 
     if (Editor->CanAcceptUserInput() && ImGui::IsKeyPressed(GetKeyIndexForF()) && Editor->AreShortcutsEnabled())
     {
-        const auto zoomMode = io.KeyShift ? NavigateAction::ZoomMode::WithMargin : NavigateAction::ZoomMode::None;
+        const auto zoomMode = io.KeyShift ? NavigateAction::ZoomMode::WithMargin : NavigateAction::ZoomMode::NoZoom;
 
         auto findHotObjectToZoom = [this, &control, &io]() -> Object*
         {
@@ -3358,7 +3358,7 @@ ed::EditorAction::AcceptResult ed::NavigateAction::Accept(const Control& control
         bool navigateToContent = false;
         if (!Editor->GetSelectedObjects().empty())
         {
-            if (m_Reason != NavigationReason::Selection || m_LastSelectionId != Editor->GetSelectionId() || (zoomMode != NavigateAction::ZoomMode::None))
+            if (m_Reason != NavigationReason::Selection || m_LastSelectionId != Editor->GetSelectionId() || (zoomMode != NavigateAction::ZoomMode::NoZoom))
             {
                 m_LastSelectionId = Editor->GetSelectionId();
                 NavigateTo(Editor->GetSelectionBounds(), zoomMode, -1.0f, NavigationReason::Selection);
@@ -3368,7 +3368,7 @@ ed::EditorAction::AcceptResult ed::NavigateAction::Accept(const Control& control
         }
         else if(auto hotObject = findHotObjectToZoom())
         {
-            if (m_Reason != NavigationReason::Object || m_LastObject != hotObject || (zoomMode != NavigateAction::ZoomMode::None))
+            if (m_Reason != NavigationReason::Object || m_LastObject != hotObject || (zoomMode != NavigateAction::ZoomMode::NoZoom))
             {
                 m_LastObject = hotObject;
                 auto bounds = hotObject->GetBounds();
@@ -3396,9 +3396,9 @@ ed::EditorAction::AcceptResult ed::NavigateAction::Accept(const Control& control
     //     m_DrawList->AddCircleFilled(io.MousePos, 4.0f, IM_COL32(255, 0, 255, 255));
 
     if (HandleZoom(control))
-        return True;
+        return Result_True;
 
-    return m_IsActive ? True : False;
+    return m_IsActive ? Result_True : Result_False;
 }
 
 bool ed::NavigateAction::Process(const Control& control)
@@ -3501,7 +3501,7 @@ void ed::NavigateAction::NavigateTo(const ImRect& bounds, ZoomMode zoomMode, flo
     if (duration < 0.0f)
         duration = GetStyle().ScrollDuration;
 
-    if (zoomMode == ZoomMode::None)
+    if (zoomMode == ZoomMode::NoZoom)
     {
         auto viewRect       = m_Canvas.ViewRect();
         auto viewRectCenter = viewRect.GetCenter();
@@ -3716,7 +3716,7 @@ ed::SizeAction::SizeAction(EditorContext* editor):
     m_IsActive(false),
     m_Clean(false),
     m_SizedNode(nullptr),
-    m_Pivot(NodeRegion::None),
+    m_Pivot(NodeRegion::NoRegion),
     m_Cursor(ImGuiMouseCursor_Arrow)
 {
 }
@@ -3726,7 +3726,7 @@ ed::EditorAction::AcceptResult ed::SizeAction::Accept(const Control& control)
     IM_ASSERT(!m_IsActive);
 
     if (m_IsActive)
-        return False;
+        return Result_False;
 
     if (control.ActiveNode && IsGroup(control.ActiveNode) && ImGui::IsMouseDragging(Editor->GetConfig().DragButtonIndex, 1))
     {
@@ -3753,7 +3753,7 @@ ed::EditorAction::AcceptResult ed::SizeAction::Accept(const Control& control)
         return Possible;
     }
 
-    return m_IsActive ? True : False;
+    return m_IsActive ? Result_True : Result_False;
 }
 
 bool ed::SizeAction::Process(const Control& control)
@@ -3898,12 +3898,12 @@ ed::EditorAction::AcceptResult ed::DragAction::Accept(const Control& control)
     IM_ASSERT(!m_IsActive);
 
     if (m_IsActive)
-        return False;
+        return Result_False;
 
     if (Editor->CanAcceptUserInput() && control.ActiveObject && ImGui::IsMouseDragging(Editor->GetConfig().DragButtonIndex, 1))
     {
         if (!control.ActiveObject->AcceptDrag())
-            return False;
+            return Result_False;
 
         m_DraggedObject = control.ActiveObject;
 
@@ -3943,7 +3943,7 @@ ed::EditorAction::AcceptResult ed::DragAction::Accept(const Control& control)
         return Possible;
     }
 
-    return m_IsActive ? True : False;
+    return m_IsActive ? Result_True : Result_False;
 }
 
 bool ed::DragAction::Process(const Control& control)
@@ -4067,7 +4067,7 @@ ed::EditorAction::AcceptResult ed::SelectAction::Accept(const Control& control)
     IM_ASSERT(!m_IsActive);
 
     if (m_IsActive)
-        return False;
+        return Result_False;
 
     auto& io = ImGui::GetIO();
     m_SelectGroups   = io.KeyShift;
@@ -4118,7 +4118,7 @@ ed::EditorAction::AcceptResult ed::SelectAction::Accept(const Control& control)
     if (m_IsActive)
         m_Animation.Stop();
 
-    return m_IsActive ? True : False;
+    return m_IsActive ? Result_True : Result_False;
 }
 
 bool ed::SelectAction::Process(const Control& control)
@@ -4231,8 +4231,8 @@ void ed::SelectAction::Draw(ImDrawList* drawList)
 //------------------------------------------------------------------------------
 ed::ContextMenuAction::ContextMenuAction(EditorContext* editor):
     EditorAction(editor),
-    m_CandidateMenu(Menu::None),
-    m_CurrentMenu(Menu::None),
+    m_CandidateMenu(Menu::NoMenu),
+    m_CurrentMenu(Menu::NoMenu),
     m_ContextId()
 {
 }
@@ -4245,7 +4245,7 @@ ed::EditorAction::AcceptResult ed::ContextMenuAction::Accept(const Control& cont
 
     if (isPressed || isReleased || isDragging)
     {
-        Menu candidateMenu = ContextMenuAction::None;
+        Menu candidateMenu = ContextMenuAction::NoMenu;
         ObjectId contextId;
 
         if (auto hotObejct = control.HotObject)
@@ -4257,7 +4257,7 @@ ed::EditorAction::AcceptResult ed::ContextMenuAction::Accept(const Control& cont
             else if (hotObejct->AsLink())
                 candidateMenu = Link;
 
-            if (candidateMenu != None)
+            if (candidateMenu != NoMenu)
                 contextId = hotObejct->ID();
         }
         else if (control.BackgroundHot)
@@ -4272,35 +4272,35 @@ ed::EditorAction::AcceptResult ed::ContextMenuAction::Accept(const Control& cont
         else if (isReleased && m_CandidateMenu == candidateMenu && m_ContextId == contextId)
         {
             m_CurrentMenu   = m_CandidateMenu;
-            m_CandidateMenu = ContextMenuAction::None;
-            return True;
+            m_CandidateMenu = ContextMenuAction::NoMenu;
+            return Result_True;
         }
         else
         {
-            m_CandidateMenu = None;
-            m_CurrentMenu   = None;
+            m_CandidateMenu = NoMenu;
+            m_CurrentMenu   = NoMenu;
             m_ContextId     = ObjectId();
-            return False;
+            return Result_False;
         }
     }
 
-    return False;
+    return Result_False;
 }
 
 bool ed::ContextMenuAction::Process(const Control& control)
 {
     IM_UNUSED(control);
 
-    m_CandidateMenu = None;
-    m_CurrentMenu   = None;
+    m_CandidateMenu = NoMenu;
+    m_CurrentMenu   = NoMenu;
     m_ContextId     = ObjectId();
     return false;
 }
 
 void ed::ContextMenuAction::Reject()
 {
-    m_CandidateMenu = None;
-    m_CurrentMenu   = None;
+    m_CandidateMenu = NoMenu;
+    m_CurrentMenu   = NoMenu;
     m_ContextId     = ObjectId();
 }
 
@@ -4313,7 +4313,7 @@ void ed::ContextMenuAction::ShowMetrics()
         switch (menu)
         {
             default:
-            case None:        return "None";
+            case NoMenu:        return "None";
             case Node:        return "Node";
             case Pin:         return "Pin";
             case Link:        return "Link";
@@ -4377,7 +4377,7 @@ ed::ShortcutAction::ShortcutAction(EditorContext* editor):
     EditorAction(editor),
     m_IsActive(false),
     m_InAction(false),
-    m_CurrentAction(Action::None),
+    m_CurrentAction(Action::NoAction),
     m_Context()
 {
 }
@@ -4385,9 +4385,9 @@ ed::ShortcutAction::ShortcutAction(EditorContext* editor):
 ed::EditorAction::AcceptResult ed::ShortcutAction::Accept(const Control& control)
 {
     if (!Editor->IsFocused() || !Editor->AreShortcutsEnabled())
-        return False;
+        return Result_False;
 
-    Action candidateAction = None;
+    Action candidateAction = NoAction;
 
     auto& io = ImGui::GetIO();
     if (io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X)))
@@ -4401,7 +4401,7 @@ ed::EditorAction::AcceptResult ed::ShortcutAction::Accept(const Control& control
     if (!io.KeyCtrl && !io.KeyShift && !io.KeyAlt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Space)))
         candidateAction = CreateNode;
 
-    if (candidateAction != None)
+    if (candidateAction != NoAction)
     {
         if (candidateAction != Paste && candidateAction != CreateNode)
         {
@@ -4435,7 +4435,7 @@ ed::EditorAction::AcceptResult ed::ShortcutAction::Accept(const Control& control
             }
 
             if (m_Context.empty())
-                return False;
+                return Result_False;
 
             // Does copying only links make sense?
             //const auto hasOnlyLinks = std::all_of(Context.begin(), Context.end(), [](Object* object) { return object->AsLink() != nullptr; });
@@ -4485,10 +4485,10 @@ ed::EditorAction::AcceptResult ed::ShortcutAction::Accept(const Control& control
         m_IsActive      = true;
         m_CurrentAction = candidateAction;
 
-        return True;
+        return Result_True;
     }
 
-    return False;
+    return Result_False;
 }
 
 bool ed::ShortcutAction::Process(const Control& control)
@@ -4496,7 +4496,7 @@ bool ed::ShortcutAction::Process(const Control& control)
     IM_UNUSED(control);
 
     m_IsActive        = false;
-    m_CurrentAction   = None;
+    m_CurrentAction   = NoAction;
     m_Context.resize(0);
     return false;
 }
@@ -4504,7 +4504,7 @@ bool ed::ShortcutAction::Process(const Control& control)
 void ed::ShortcutAction::Reject()
 {
     m_IsActive        = false;
-    m_CurrentAction   = None;
+    m_CurrentAction   = NoAction;
     m_Context.resize(0);
 }
 
@@ -4517,7 +4517,7 @@ void ed::ShortcutAction::ShowMetrics()
         switch (action)
         {
             default:
-            case None:       return "None";
+            case NoAction:       return "None";
             case Cut:        return "Cut";
             case Copy:       return "Copy";
             case Paste:      return "Paste";
@@ -4584,8 +4584,8 @@ bool ed::ShortcutAction::AcceptCreateNode()
 ed::CreateItemAction::CreateItemAction(EditorContext* editor):
     EditorAction(editor),
     m_InActive(false),
-    m_NextStage(None),
-    m_CurrentStage(None),
+    m_NextStage(NoStage),
+    m_CurrentStage(NoStage),
     m_ItemType(NoItem),
     m_UserAction(Unknown),
     m_LinkColor(IM_COL32_WHITE),
@@ -4605,7 +4605,7 @@ ed::EditorAction::AcceptResult ed::CreateItemAction::Accept(const Control& contr
     IM_ASSERT(!m_IsActive);
 
     if (m_IsActive)
-        return EditorAction::False;
+        return EditorAction::Result_False;
 
     if (control.ActivePin && ImGui::IsMouseDragging(Editor->GetConfig().DragButtonIndex, 1))
     {
@@ -4619,11 +4619,11 @@ ed::EditorAction::AcceptResult ed::CreateItemAction::Accept(const Control& contr
         return EditorAction::Possible;
     }
     else
-        return EditorAction::False;
+        return EditorAction::Result_False;
 
     m_IsActive = true;
 
-    return EditorAction::True;
+    return EditorAction::Result_True;
 }
 
 bool ed::CreateItemAction::Process(const Control& control)
@@ -4690,7 +4690,7 @@ void ed::CreateItemAction::ShowMetrics()
     {
         switch (stage)
         {
-            case None:     return "None";
+            case NoStage:     return "None";
             case Possible: return "Possible";
             case Create:   return "Create";
             default:       return "<unknown>";
@@ -4741,7 +4741,7 @@ bool ed::CreateItemAction::Begin()
     m_LinkColor       = IM_COL32_WHITE;
     m_LinkThickness   = 1.0f;
 
-    if (m_CurrentStage == None)
+    if (m_CurrentStage == NoStage)
         return false;
 
     m_LastChannel = Editor->GetDrawList()->_Splitter._Current;
@@ -4787,7 +4787,7 @@ void ed::CreateItemAction::DragEnd()
     }
     else
     {
-        m_NextStage = None;
+        m_NextStage = NoStage;
         m_ItemType  = NoItem;
         m_LinkStart = nullptr;
         m_LinkEnd   = nullptr;
@@ -4822,40 +4822,40 @@ ed::CreateItemAction::Result ed::CreateItemAction::RejectItem()
 {
     IM_ASSERT(m_InActive);
 
-    if (!m_InActive || m_CurrentStage == None || m_ItemType == NoItem)
+    if (!m_InActive || m_CurrentStage == NoStage || m_ItemType == NoItem)
         return Indeterminate;
 
     m_UserAction = UserReject;
 
-    return True;
+    return Result_True;
 }
 
 ed::CreateItemAction::Result ed::CreateItemAction::AcceptItem()
 {
     IM_ASSERT(m_InActive);
 
-    if (!m_InActive || m_CurrentStage == None || m_ItemType == NoItem)
+    if (!m_InActive || m_CurrentStage == NoStage || m_ItemType == NoItem)
         return Indeterminate;
 
     m_UserAction = UserAccept;
 
     if (m_CurrentStage == Create)
     {
-        m_NextStage = None;
+        m_NextStage = NoStage;
         m_ItemType  = NoItem;
         m_LinkStart = nullptr;
         m_LinkEnd   = nullptr;
-        return True;
+        return Result_True;
     }
     else
-        return False;
+        return Result_False;
 }
 
 ed::CreateItemAction::Result ed::CreateItemAction::QueryLink(PinId* startId, PinId* endId)
 {
     IM_ASSERT(m_InActive);
 
-    if (!m_InActive || m_CurrentStage == None || m_ItemType != Link)
+    if (!m_InActive || m_CurrentStage == NoStage || m_ItemType != Link)
         return Indeterminate;
 
     auto linkStartId = m_LinkStart->m_ID;
@@ -4875,7 +4875,7 @@ ed::CreateItemAction::Result ed::CreateItemAction::QueryLink(PinId* startId, Pin
         m_IsInGlobalSpace = true;
     }
 
-    return True;
+    return Result_True;
 }
 
 ed::CreateItemAction::Result ed::CreateItemAction::QueryNode(PinId* pinId)
@@ -4898,7 +4898,7 @@ ed::CreateItemAction::Result ed::CreateItemAction::QueryNode(PinId* pinId)
         m_IsInGlobalSpace = true;
     }
 
-    return True;
+    return Result_True;
 }
 
 
@@ -4949,7 +4949,7 @@ ed::EditorAction::AcceptResult ed::DeleteItemsAction::Accept(const Control& cont
     IM_ASSERT(!m_IsActive);
 
     if (m_IsActive)
-        return False;
+        return Result_False;
 
     auto& io = ImGui::GetIO();
     if (Editor->CanAcceptUserInput() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)) && Editor->AreShortcutsEnabled())
@@ -4959,7 +4959,7 @@ ed::EditorAction::AcceptResult ed::DeleteItemsAction::Accept(const Control& cont
         {
             m_CandidateObjects = selection;
             m_IsActive = true;
-            return True;
+            return Result_True;
         }
     }
     else if (control.ClickedLink && io.KeyAlt)
@@ -4967,7 +4967,7 @@ ed::EditorAction::AcceptResult ed::DeleteItemsAction::Accept(const Control& cont
         m_CandidateObjects.clear();
         m_CandidateObjects.push_back(control.ClickedLink);
         m_IsActive = true;
-        return True;
+        return Result_True;
     }
 
     else if (!m_ManuallyDeletedObjects.empty())
@@ -4975,10 +4975,10 @@ ed::EditorAction::AcceptResult ed::DeleteItemsAction::Accept(const Control& cont
         m_CandidateObjects = m_ManuallyDeletedObjects;
         m_ManuallyDeletedObjects.clear();
         m_IsActive = true;
-        return True;
+        return Result_True;
     }
 
-    return m_IsActive ? True : False;
+    return m_IsActive ? Result_True : Result_False;
 }
 
 bool ed::DeleteItemsAction::Process(const Control& control)
